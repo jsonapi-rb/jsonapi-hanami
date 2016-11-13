@@ -40,9 +40,21 @@ module API::Controllers::Posts
     end
 
     def call(params)
-      User.new(params[:user])
-      # ...
-      self.body = jsonapi_render(resources)
+      unless params.valid?
+        self.errors = params.errors
+        return
+      end
+
+      repo = UserRepository.new
+      user = repo.create(params[:user])
+
+      self.data = user
+      self.meta = { foo: 'bar' }
+      self.links = { self: 'foo://bar' }
+      self.jsonapi = { version: '1.0', meta: { foo: 'bar' } }
+      # Also available:
+      #  self.included = { posts: [:author, comments: [:author]] }
+      #  self.fields = { posts: [:title, :date], users: [:name] }
     end
   end
 end
