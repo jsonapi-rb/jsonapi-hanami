@@ -3,7 +3,7 @@ require 'jsonapi/parser'
 
 module JSONAPI
   module Hanami
-    module Deserializable
+    module Deserialization
       def self.included(base)
         base.extend ClassMethods
       end
@@ -13,18 +13,18 @@ module JSONAPI
           if klass.nil?
             klass = Class.new(JSONAPI::Deserializable::Resource, &block)
           end
-          use DeserializableResource, key, klass
+          use DeserializeResource, key, klass
         end
 
         def deserializable_relationship(key, klass = nil, &block)
           if klass.nil?
             klass = Class.new(JSONAPI::Deserializable::Relationship, &block)
           end
-          use DeserializableRelationship, key, klass
+          use DeserializeRelationship, key, klass
         end
       end
 
-      class DeserializableMiddleware
+      class DeserializationMiddleware
         ROUTER_PARAMS = 'router.params'.freeze
         ROUTER_PARSED_BODY = 'router.parsed_body'.freeze
         JSONAPI_KEYS = [:data, :meta, :links, :jsonapi].freeze
@@ -52,13 +52,13 @@ module JSONAPI
         end
       end
 
-      class DeserializableResource < DeserializableMiddleware
+      class DeserializeResource < DeserializationMiddleware
         def parser
           JSONAPI::Parser::Resource
         end
       end
 
-      class DeserializableRelationship < DeserializableMiddleware
+      class DeserializeRelationship < DeserializationMiddleware
         def parser
           JSONAPI::Parser::Relationship
         end

@@ -1,5 +1,5 @@
 require 'jsonapi/hanami/renderer'
-require 'jsonapi/hanami/deserializable'
+require 'jsonapi/hanami/deserialization'
 
 module JSONAPI
   module Hanami
@@ -7,7 +7,7 @@ module JSONAPI
       def self.included(base)
         base.class_eval do
           include Renderer
-          include Deserializable
+          include Deserialization
         end
       end
     end
