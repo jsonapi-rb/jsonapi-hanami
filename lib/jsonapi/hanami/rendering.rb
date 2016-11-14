@@ -35,25 +35,33 @@ module JSONAPI
         end
       end
 
+      # TODO(beauby): Refactor inference into a ResourceBuilder class.
       def _jsonapi_resources
         data = @_jsonapi[:data]
-        if data.is_a?(Array)
-          return data if data.empty? || data[0].respond_to?(:as_jsonapi)
+        return data if data.nil? || Array(data).first.respond_to?(:as_jsonapi)
 
+        if data.respond_to?(:each)
           data.map { |model| _jsonapi_resource_for(model) }
         else
-          return nil if data.nil?
-          return data if data.respond_to?(:as_jsonapi)
-
           _jsonapi_resource_for(data)
         end
       end
 
       def _jsonapi_resource_for(model)
-        klass =
-          JSONAPI::Serializable::Model.resource_klass_for(model.class.name)
+        klass  = _jsonapi_resource_inferer.call(model.class.name)
+        params = _jsonapi_model_params
+                 .merge!(exposures)
+                 .merge!(model: model)
 
-        klass.new(model: model, routes: routes)
+        klass.new(params)
+      end
+
+      def _jsonapi_resource_inferer
+        JSONAPI::Serializable::Model::DEFAULT_RESOURCE_INFERER
+      end
+
+      def _jsonapi_model_params
+        { routes: routes }
       end
 
       def _jsonapi_errors
