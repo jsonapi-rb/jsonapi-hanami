@@ -26,6 +26,8 @@ module JSONAPI
 
       class DeserializableMiddleware
         ROUTER_PARAMS = 'router.params'.freeze
+        ROUTER_PARSED_BODY = 'router.parsed_body'.freeze
+        JSONAPI_KEYS = [:data, :meta, :links, :jsonapi].freeze
 
         def initialize(app, key, klass)
           @app = app
@@ -34,11 +36,18 @@ module JSONAPI
         end
 
         def call(env)
-          env[ROUTER_PARAMS].tap do |body|
-            parser.parse!(body)
-            deserialized_hash = @deserializable_class.call(body)
-            body.replace(@deserializable_key => deserialized_hash)
+          body = env[ROUTER_PARSED_BODY]
+          parser.parse!(body)
+          deserialized_hash = @deserializable_class.call(body)
+          params = env[ROUTER_PARAMS]
+          # TODO(beauby): Actually replace the request body upstream instead
+          #   of hacking it here.
+          params[:_jsonapi] = {}
+          JSONAPI_KEYS.each do |key|
+            params[:_jsonapi][key] = params.delete(key) if params.key?(key)
           end
+          params[@deserializable_key] = deserialized_hash
+
           @app.call(env)
         end
       end
