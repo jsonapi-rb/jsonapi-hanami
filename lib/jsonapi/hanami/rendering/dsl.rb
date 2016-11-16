@@ -29,6 +29,18 @@ module JSONAPI
         def jsonapi=(value)
           (@_jsonapi ||= {}).merge!(jsonapi: value)
         end
+
+        def serializable_class=(value)
+          (@_jsonapi ||= {}).merge!(class: value)
+        end
+
+        def serializable_namespace=(value)
+          (@_jsonapi ||= {}).merge!(namespace: value)
+        end
+
+        def serializable_inferer=(value)
+          (@_jsonapi ||= {}).merge!(inferer: value)
+        end
       end
     end
   end

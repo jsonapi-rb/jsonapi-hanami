@@ -1,4 +1,3 @@
-require 'jsonapi/renderer'
 require 'jsonapi/serializable'
 require 'jsonapi/hanami/rendering/dsl'
 
@@ -10,50 +9,53 @@ module JSONAPI
           include JSONAPI::Hanami::Rendering::DSL
 
           after do
-            _render_jsonapi if @_body.nil?
+            _jsonapi_render if @_body.nil?
           end
         end
       end
 
-      def _render_jsonapi
-        document = JSONAPI.render(_jsonapi_params)
+      def _jsonapi_render
+        if @_jsonapi.key?(:errors)
+          _jsonapi_render_error
+        else
+          _jsonapi_render_success
+        end
+      end
+
+      def _jsonapi_render_success
         self.format = :jsonapi if @format.nil?
-        self.status = _jsonapi_status unless @_status
-        self.body   = document.empty? ? nil : document.to_json
+        return unless @_jsonapi.key?(:data)
+        self.body = JSONAPI::Serializable::Renderer.render(@_jsonapi[:data],
+                                                           _jsonapi_params)
       end
 
-      def _jsonapi_status
-        # TODO(beauby): Set HTTP status code accordingly.
-        200
-      end
-
+      # NOTE(beauby): It might be worth factoring those methods out into a
+      #   class.
       def _jsonapi_params
         # TODO(beauby): Inject global params (toplevel jsonapi, etc.).
-        @_jsonapi.dup.tap do |hash|
-          hash[:data]   = _jsonapi_resources if @_jsonapi.key?(:data)
-          hash[:errors] = _jsonapi_errors    if @_jsonapi.key?(:errors)
-        end
+        @_jsonapi.dup.merge!(expose: _jsonapi_exposures)
       end
 
-      def _jsonapi_resources
-        data = @_jsonapi[:data]
-        if data.is_a?(Array)
-          return data if data.empty? || data[0].respond_to?(:as_jsonapi)
-
-          data.map { |model| _jsonapi_resource_for(model) }
-        else
-          return nil if data.nil?
-          return data if data.respond_to?(:as_jsonapi)
-
-          _jsonapi_resource_for(data)
-        end
+      def _jsonapi_exposures
+        { routes: routes }.merge!(exposures)
       end
 
-      def _jsonapi_resource_for(model)
-        klass =
-          JSONAPI::Serializable::Model.resource_klass_for(model.class.name)
+      def _jsonapi_render_error
+        document =
+          JSONAPI::Serializable::ErrorRenderer.render(@_jsonapi[:errors],
+                                                      _jsonapi_error_params)
+        self.status = _jsonapi_error_status unless @_status
+        self.format = :jsonapi if @format.nil?
+        self.body   = document
+      end
 
-        klass.new(model: model, routes: routes)
+      def _jsonapi_error_status
+        # TODO(beauby): Set HTTP status code accordingly.
+        400
+      end
+
+      def _jsonapi_error_params
+        @_jsonapi
       end
 
       def _jsonapi_errors
