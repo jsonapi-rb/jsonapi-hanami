@@ -1,5 +1,5 @@
 # jsonapi-hanami
-Hanami integration for [jsonapi-rb](https://github.com/jsonapi-rb/jsonapi-rb).
+Hanami integration for [jsonapi-rb](http://jsonapi-rb.org).
 
 ## Status
 
@@ -22,44 +22,9 @@ Or install it manually as:
 $ gem install jsonapi-hanami
 ```
 
-## Usage
+## Usage and documentation
 
-```ruby
-module API::Controllers::Posts
-  class Create
-    include API::Action
-    include JSONAPI::Hanami::Action
-
-    deserializable_resource :user, DeserializableCreatePost
-    # or
-    deserializable_resource :user do
-      # ...
-    end
-
-    params do
-      # ...
-    end
-
-    def call(params)
-      unless params.valid?
-        self.errors = params.errors
-        return
-      end
-
-      repo = UserRepository.new
-      user = repo.create(params[:user])
-
-      self.data = user
-      self.meta = { foo: 'bar' }
-      self.links = { self: 'foo://bar' }
-      self.jsonapi = { version: '1.0', meta: { foo: 'bar' } }
-      # Also available:
-      #  self.included = { posts: [:author, comments: [:author]] }
-      #  self.fields = { posts: [:title, :date], users: [:name] }
-    end
-  end
-end
-```
+See [jsonapi-rb.org/guides](http://jsonapi-rb.org/guides).
 
 ## License
 
