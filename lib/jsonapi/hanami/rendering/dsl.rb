@@ -38,8 +38,8 @@ module JSONAPI
           (@_jsonapi ||= {}).merge!(namespace: value)
         end
 
-        def serializable_inferer=(value)
-          (@_jsonapi ||= {}).merge!(inferer: value)
+        def serializable_inferrer=(value)
+          (@_jsonapi ||= {}).merge!(inferrer: value)
         end
       end
     end
