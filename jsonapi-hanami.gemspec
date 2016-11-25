@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'jsonapi-rb integrations for Hanami.'
   spec.description   = 'Efficient, convenient, non-intrusive JSONAPI ' \
                        'framework for Hanami.'
-  spec.homepage      = 'https://github.com/jsonapi-rb/hanami'
+  spec.homepage      = 'https://github.com/jsonapi-rb/jsonapi-hanami'
   spec.license       = 'MIT'
 
   spec.files         = Dir['README.md', 'lib/**/*']
