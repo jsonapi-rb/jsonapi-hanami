@@ -1,5 +1,4 @@
 require 'jsonapi/deserializable'
-require 'jsonapi/parser'
 
 module JSONAPI
   module Hanami
@@ -9,18 +8,20 @@ module JSONAPI
       end
 
       module ClassMethods
-        def deserializable_resource(key, klass = nil, &block)
-          if klass.nil?
-            klass = Class.new(JSONAPI::Deserializable::Resource, &block)
-          end
-          use DeserializeResource, key, klass
+        def deserializable_resource(key, options = {}, &block)
+          _deserializable(key, options,
+                          JSONAPI::Deserializable::Resource, &block)
         end
 
-        def deserializable_relationship(key, klass = nil, &block)
-          if klass.nil?
-            klass = Class.new(JSONAPI::Deserializable::Relationship, &block)
-          end
-          use DeserializeRelationship, key, klass
+        def deserializable_relationship(key, options = {}, &block)
+          _deserializable(key, options,
+                          JSONAPI::Deserializable::Relationship, &block)
+        end
+
+        # @api private
+        def _deserializable(key, options, fallback, &block)
+          klass = options[:class] || Class.new(fallback, &block)
+          use DeserializationMiddleware, key, klass
         end
       end
 
@@ -37,7 +38,6 @@ module JSONAPI
 
         def call(env)
           body = env[ROUTER_PARSED_BODY]
-          parser.parse!(body)
           deserialized_hash = @deserializable_class.call(body)
           params = env[ROUTER_PARAMS]
           # TODO(beauby): Actually replace the request body upstream instead
@@ -49,18 +49,6 @@ module JSONAPI
           params[@deserializable_key] = deserialized_hash
 
           @app.call(env)
-        end
-      end
-
-      class DeserializeResource < DeserializationMiddleware
-        def parser
-          JSONAPI::Parser::Resource
-        end
-      end
-
-      class DeserializeRelationship < DeserializationMiddleware
-        def parser
-          JSONAPI::Parser::Relationship
         end
       end
     end
