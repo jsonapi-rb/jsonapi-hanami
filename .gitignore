@@ -32,3 +32,7 @@ Gemfile.lock
 
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
+
+## Dummy application
+spec/dummy/db/*.sqlite
+spec/dummy/tmp

@@ -2,9 +2,10 @@ language: ruby
 sudo: false
 before_install:
   - bundle update
+before_script:
+  - '$(cd spec/dummy HANAMI_ENV=test bundle exec hanami db create)'
+  - '$(cd spec/dummy HANAMI_ENV=test bundle exec hanami db migrate)'
 rvm:
-  - 2.1
-  - 2.2
   - 2.3.0
   - ruby-head
 matrix:
