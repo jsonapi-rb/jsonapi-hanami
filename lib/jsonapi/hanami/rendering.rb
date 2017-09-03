@@ -25,7 +25,7 @@ module JSONAPI
       def _jsonapi_render_success
         self.format = :jsonapi if @format.nil?
         return unless @_jsonapi.key?(:data)
-        self.body = JSONAPI::Serializable::Renderer.render(@_jsonapi[:data],
+        self.body = JSONAPI::Serializable::SuccessRenderer.render(@_jsonapi[:data],
                                                            _jsonapi_params)
       end
 
