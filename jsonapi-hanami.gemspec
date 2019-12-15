@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec',  '~> 3.5'
   spec.add_development_dependency 'hanami', '~> 1.0'
   spec.add_development_dependency 'hanami-model', '~> 1.0'
+  spec.add_development_dependency 'rack-test'
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'dotenv'
 end

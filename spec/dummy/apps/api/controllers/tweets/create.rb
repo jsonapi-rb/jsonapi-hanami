@@ -8,6 +8,7 @@ module Api::Controllers::Tweets
     params do
       required(:tweet).schema do
         required(:contents).filled(:str?, size?: 3..140)
+        required(:author_id).filled(:int?)
       end
     end
 

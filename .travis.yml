@@ -3,8 +3,11 @@ sudo: false
 before_install:
   - bundle update
 before_script:
-  - '$(cd spec/dummy HANAMI_ENV=test bundle exec hanami db create)'
-  - '$(cd spec/dummy HANAMI_ENV=test bundle exec hanami db migrate)'
+  - 'cd spec/dummy && HANAMI_ENV=test bundle exec hanami db create && cd ../..'
+  - 'cd spec/dummy && HANAMI_ENV=test bundle exec hanami db migrate && cd ../..'
+  - 'ls -l spec/dummy/db'
+script:
+  - 'HANAMI_ENV=test bundle exec rake spec'
 rvm:
   - 2.3.0
   - ruby-head
